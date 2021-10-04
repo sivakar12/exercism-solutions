@@ -1,22 +1,21 @@
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashSet};
 
-fn get_word_count_hashset(word: &str) -> HashMap<char, u8> {
-    let mut word_count: HashMap<char, u8> = HashMap::new();
-    for char in String::from(word).to_lowercase().chars() {
-        *word_count.entry(char).or_insert(0) += 1
-    }
-    word_count
+fn get_sorted_lowercase(word: &str) -> Vec<char> {
+    let mut word_lowercase = word.to_lowercase().chars().collect::<Vec<char>>();
+    word_lowercase.sort_unstable();
+    word_lowercase
 }
 
 pub fn anagrams_for<'a>(word: &str, possible_anagrams: &[&'a str]) -> HashSet<&'a str> {
-    let mut matches: HashSet<&'a str> = HashSet::new();
-    let w_hm = get_word_count_hashset(word);
-    for possible_anagram in possible_anagrams {
-        if String::from(word).to_lowercase() == String::from(*possible_anagram).to_lowercase() { continue; }
-        let w2_hm = get_word_count_hashset(possible_anagram);
-        if w_hm == w2_hm {
-            matches.insert(possible_anagram);
-        }
-    }
-    matches
+    let word_lowercase = word.to_lowercase();
+    let word_sorted_lowercase = get_sorted_lowercase(word);
+    possible_anagrams
+        .iter()
+        .filter(|possible_anagram| {
+            possible_anagram.to_lowercase() != word.to_lowercase() &&
+            word_lowercase.len() == possible_anagram.to_lowercase().len() &&
+            word_sorted_lowercase == get_sorted_lowercase(possible_anagram)
+        })
+        .copied()
+        .collect()
 }
